@@ -6,12 +6,15 @@ from typing import Dict, Any, List, Optional
 from enum import Enum
 import asyncio
 import json
+from dataclasses import dataclass, field
+
 
 class AgentStatus(Enum):
     IDLE = "idle"
     WORKING = "working"
     PAUSED = "paused"
     ERROR = "error"
+
 
 class AgentCapability(Enum):
     TASK_EXECUTION = "task_execution"
@@ -21,20 +24,31 @@ class AgentCapability(Enum):
     COMMUNICATION = "communication"
     DECOMPOSITION = "decomposition"
 
+
+@dataclass
+class AgentResponse:
+    """Standard response from agent operations"""
+    success: bool
+    data: Any = None
+    error: str = ""
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
 class BaseAgent(ABC):
     
-    def __init__(self, name: str, description: str = "", capabilities: List[AgentCapability] = None):
-        self.id = str(uuid.uuid4())
+    def __init__(self, name: str, description: str = "", agent_id: Optional[str] = None):
+        self.agent_id = agent_id or str(uuid.uuid4())
         self.name = name
         self.description = description
-        self.capabilities = capabilities or []
+        self.capabilities = []
         self.status = AgentStatus.IDLE
         self.memory = {}  # Short-term memory for the agent
         self.long_term_memory = {}  # Long-term storage if needed
         self.agent_type = "base"
+        self.api_manager = None  # Will be set by the agent builder or system
         
     @abstractmethod
-    async def execute_task(self, task: Dict[str, Any]) -> Any:
+    async def execute_task(self, task: 'Task') -> AgentResponse:
         pass
     
     def update_status(self, status: AgentStatus):
@@ -67,7 +81,7 @@ class BaseAgent(ABC):
     
     def get_agent_info(self) -> Dict[str, Any]:
         return {
-            "id": self.id,
+            "id": self.agent_id,
             "name": self.name,
             "description": self.description,
             "status": self.status.value,
@@ -77,7 +91,7 @@ class BaseAgent(ABC):
         }
     
     def __str__(self) -> str:
-        return f"Agent({self.name}, ID: {self.id}, Type: {self.agent_type})"
+        return f"Agent({self.name}, ID: {self.agent_id}, Type: {self.agent_type})"
     
     def __repr__(self) -> str:
         return self.__str__()
@@ -93,9 +107,13 @@ class Task:
                  dependencies: List[str] = None,
                  assigned_to: str = None,  # Agent ID
                  status: str = "pending",
-                 params: Dict[str, Any] = None):
+                 params: Dict[str, Any] = None,
+                 context: str = "",
+                 constraints: List[str] = None,
+                 expected_output: str = "",
+                 config: Dict[str, Any] = None):
         
-        self.id = task_id or str(uuid.uuid4())
+        self.task_id = task_id or str(uuid.uuid4())
         self.title = title
         self.description = description
         self.priority = priority
@@ -103,12 +121,16 @@ class Task:
         self.assigned_to = assigned_to
         self.status = status
         self.params = params or {}
+        self.context = context
+        self.constraints = constraints or []
+        self.expected_output = expected_output
+        self.config = config or {}
         self.created_at = asyncio.get_event_loop().time()
         self.completed_at = None
         
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "id": self.id,
+            "task_id": self.task_id,
             "title": self.title,
             "description": self.description,
             "priority": self.priority,
@@ -116,12 +138,16 @@ class Task:
             "assigned_to": self.assigned_to,
             "status": self.status,
             "params": self.params,
+            "context": self.context,
+            "constraints": self.constraints,
+            "expected_output": self.expected_output,
+            "config": self.config,
             "created_at": self.created_at,
             "completed_at": self.completed_at
         }
     
     def __str__(self) -> str:
-        return f"Task({self.title}, ID: {self.id}, Status: {self.status})"
+        return f"Task({self.title}, ID: {self.task_id}, Status: {self.status})"
     
     def __repr__(self) -> str:
         return self.__str__()
