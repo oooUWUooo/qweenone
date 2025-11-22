@@ -4,36 +4,37 @@
 __pycache__/
 *.o
 *.obj
+*.so
+*.a
+*.dll
+*.exe
+*.out
 
 # Dependencies
-.venv/
 venv/
-node_modules/
+.venv/
+.env
+.env.local
+.env.*
 
 # Logs and temp files
 *.log
 *.tmp
 *.swp
-
-# Environment
-.env
-.env.local
-*.env.*
-
-# Editors
-.vscode/
-.idea/
+*.swo
 
 # Coverage
 .coverage
 coverage/
 htmlcov/
 
-# Distribution / packaging
-dist/
-build/
-*.egg-info/
-*.egg
+# Editors
+.vscode/
+.idea/
+
+# System files
+.DS_Store
+Thumbs.db
 
 # Testing
 .pytest_cache/

@@ -1,16 +1,9 @@
 #!/usr/bin/env python3
-"""
-Test Runner for the Agentic Architecture System
-Handles testing of code and solutions
-"""
 
 from typing import Dict, Any
 from src.utils.logger import setup_logger
 
 class TestRunner:
-    """
-    Component responsible for running tests on code and solutions
-    """
     
     def __init__(self):
         self.logger = setup_logger("TestRunner")
@@ -21,9 +14,6 @@ class TestRunner:
         }
     
     def run_tests(self, code_path: str, test_framework: str = "pytest") -> Dict[str, Any]:
-        """
-        Run tests on the provided code path
-        """
         self.logger.info(f"Running tests on: {code_path} using {test_framework}")
         
         if test_framework not in self.test_frameworks:
@@ -46,9 +36,6 @@ class TestRunner:
             }
     
     def _run_pytest(self, code_path: str) -> Dict[str, Any]:
-        """
-        Run tests using pytest framework
-        """
         # In a real implementation, this would actually run pytest
         # For now, we'll simulate the process
         self.logger.info(f"Simulating pytest run for: {code_path}")
@@ -66,9 +53,6 @@ class TestRunner:
         }
     
     def _run_unittest(self, code_path: str) -> Dict[str, Any]:
-        """
-        Run tests using unittest framework
-        """
         # In a real implementation, this would actually run unittest
         # For now, we'll simulate the process
         self.logger.info(f"Simulating unittest run for: {code_path}")
@@ -86,9 +70,6 @@ class TestRunner:
         }
     
     def _run_custom_tests(self, code_path: str) -> Dict[str, Any]:
-        """
-        Run custom tests defined by the system
-        """
         # In a real implementation, this would run custom tests
         # For now, we'll simulate the process
         self.logger.info(f"Simulating custom tests for: {code_path}")
@@ -106,9 +87,6 @@ class TestRunner:
         }
     
     def run_agent_tests(self, agent_id: str, test_type: str = "functionality") -> Dict[str, Any]:
-        """
-        Run specific tests for an agent
-        """
         self.logger.info(f"Running {test_type} tests for agent: {agent_id}")
         
         return {
@@ -122,9 +100,6 @@ class TestRunner:
         }
     
     def validate_solution(self, solution: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Validate a solution against requirements
-        """
         self.logger.info(f"Validating solution: {solution.get('title', 'Unknown')}")
         
         # In a real implementation, this would validate the solution

@@ -1,18 +1,10 @@
 #!/usr/bin/env python3
-"""
-Task Decomposer for the Agentic Architecture System
-Handles the decomposition of complex tasks into iterative steps
-"""
 
 from typing import Dict, Any, List
 from src.agents.base_agent import Task
 import json
 
 class TaskDecomposer:
-    """
-    Component responsible for analyzing and decomposing complex tasks
-    into iterative steps with proper subtask breakdown
-    """
     
     def __init__(self):
         self.iteration_templates = {
@@ -29,9 +21,6 @@ class TaskDecomposer:
         }
     
     def decompose(self, task_description: str, iterations: int = 3) -> Dict[str, Any]:
-        """
-        Decompose a complex task into iterative steps with subtasks
-        """
         # Identify the type of task to determine appropriate decomposition pattern
         task_type = self._identify_task_type(task_description)
         
@@ -52,9 +41,6 @@ class TaskDecomposer:
         return plan
     
     def _identify_task_type(self, task_description: str) -> str:
-        """
-        Identify the type of task to apply appropriate decomposition pattern
-        """
         task_lower = task_description.lower()
         
         if any(keyword in task_lower for keyword in ["server", "api", "backend", "web server", "http"]):
@@ -67,9 +53,6 @@ class TaskDecomposer:
             return "general_development"
     
     def _create_iteration(self, task_description: str, task_type: str, iteration_num: int, total_iterations: int) -> Dict[str, Any]:
-        """
-        Create a single iteration with subtasks
-        """
         # Get template for this iteration if available
         template = None
         if task_type in self.iteration_templates:
@@ -95,9 +78,6 @@ class TaskDecomposer:
         }
     
     def _decompose_into_subtasks(self, task_description: str, iteration_num: int, total_iterations: int) -> List[Dict[str, Any]]:
-        """
-        Decompose a task into subtasks down to the implementation level
-        """
         subtasks = []
         
         # Apply different decomposition strategies based on task type
@@ -117,9 +97,6 @@ class TaskDecomposer:
         return fully_decomposed
     
     def _decompose_server_task(self, task_description: str, iteration_num: int) -> List[Dict[str, Any]]:
-        """
-        Decompose server-related tasks
-        """
         base_subtasks = []
         
         if iteration_num == 1:  # Basic server
@@ -147,9 +124,6 @@ class TaskDecomposer:
         return base_subtasks
     
     def _decompose_parser_task(self, task_description: str, iteration_num: int) -> List[Dict[str, Any]]:
-        """
-        Decompose parser-related tasks (like Instagram parser)
-        """
         base_subtasks = []
         
         if iteration_num == 1:  # Basic parser
@@ -177,9 +151,6 @@ class TaskDecomposer:
         return base_subtasks
     
     def _decompose_general_task(self, task_description: str, iteration_num: int) -> List[Dict[str, Any]]:
-        """
-        General decomposition for tasks that don't fit specific categories
-        """
         # For general tasks, we'll apply a generic decomposition approach
         # This could be expanded based on more sophisticated NLP analysis
         
@@ -204,17 +175,11 @@ class TaskDecomposer:
         return subtasks
     
     def _further_decompose_subtask(self, subtask: Dict[str, Any], iteration_num: int) -> List[Dict[str, Any]]:
-        """
-        Further decompose a subtask into more granular steps
-        """
         # For now, return the subtask as-is, but in a real system,
         # this would recursively decompose until reaching implementation-level tasks
         return [subtask]
     
     def create_task_board(self, decomposition_plan: Dict[str, Any]) -> List[Task]:
-        """
-        Convert the decomposition plan into a list of Task objects
-        """
         tasks = []
         
         for iteration in decomposition_plan["iterations"]:

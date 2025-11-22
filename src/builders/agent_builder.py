@@ -1,17 +1,10 @@
 #!/usr/bin/env python3
-"""
-Agent Builder for the Agentic Architecture System
-Handles the creation of new agents with specific capabilities
-"""
 
 from typing import Dict, Any, Type
 from src.agents.base_agent import BaseAgent, AgentCapability
 from src.utils.logger import setup_logger
 
 class AgentBuilder:
-    """
-    Component responsible for building new agents with specific configurations
-    """
     
     def __init__(self):
         self.logger = setup_logger("AgentBuilder")
@@ -21,9 +14,6 @@ class AgentBuilder:
         self._register_default_agents()
     
     def _register_default_agents(self):
-        """
-        Register default agent types that can be created
-        """
         # In a real system, this would register actual agent classes
         # For now, we'll just define the types that will be implemented
         self.agent_types = {
@@ -50,9 +40,6 @@ class AgentBuilder:
         }
     
     def create_agent(self, config: Dict[str, Any]) -> BaseAgent:
-        """
-        Create a new agent based on the provided configuration
-        """
         agent_type = config.get("type", "default")
         name = config.get("name", f"Agent_{agent_type}")
         description = config.get("description", f"Default {agent_type} agent")
@@ -83,9 +70,6 @@ class AgentBuilder:
         return agent
     
     def _create_default_agent(self, name: str, description: str, capabilities: list) -> BaseAgent:
-        """
-        Create a default agent when specific type is not available
-        """
         from src.agents.default_agent import DefaultAgent
         agent = DefaultAgent(name, description)
         
@@ -101,9 +85,6 @@ class AgentBuilder:
     
     def register_agent_type(self, agent_type: str, agent_class: Type[BaseAgent], 
                            default_capabilities: list = None, description: str = ""):
-        """
-        Register a new agent type that can be created by the builder
-        """
         self.agent_registry[agent_type] = {
             "class": agent_class,
             "default_capabilities": default_capabilities or [],
@@ -112,9 +93,6 @@ class AgentBuilder:
         self.logger.info(f"Registered new agent type: {agent_type}")
     
     def list_available_agents(self) -> Dict[str, Any]:
-        """
-        List all available agent types that can be created
-        """
         return {
             "default_types": self.agent_types,
             "custom_types": self.agent_registry
@@ -124,9 +102,6 @@ class AgentBuilder:
 # Default agent implementations that will be referenced by the builder
 
 class DefaultAgent(BaseAgent):
-    """
-    Default agent implementation for general purposes
-    """
     
     def __init__(self, name: str, description: str = ""):
         super().__init__(name, description)
@@ -134,9 +109,6 @@ class DefaultAgent(BaseAgent):
         self.add_capability(AgentCapability.TASK_EXECUTION)
     
     async def execute_task(self, task: Dict[str, Any]) -> Any:
-        """
-        Execute a task - in the default implementation, just log what would be done
-        """
         self.update_status("working")
         self.logger = setup_logger(f"DefaultAgent_{self.id}")
         
@@ -159,9 +131,6 @@ class DefaultAgent(BaseAgent):
 
 
 class CodeAgent(BaseAgent):
-    """
-    Specialized agent for code writing and development tasks
-    """
     
     def __init__(self, name: str, description: str = ""):
         super().__init__(name, description)
@@ -170,9 +139,6 @@ class CodeAgent(BaseAgent):
         self.add_capability(AgentCapability.ANALYSIS)
     
     async def execute_task(self, task: Dict[str, Any]) -> Any:
-        """
-        Execute a code-related task
-        """
         self.update_status("working")
         self.logger = setup_logger(f"CodeAgent_{self.id}")
         
@@ -194,9 +160,6 @@ class CodeAgent(BaseAgent):
 
 
 class TestingAgent(BaseAgent):
-    """
-    Specialized agent for testing and validation tasks
-    """
     
     def __init__(self, name: str, description: str = ""):
         super().__init__(name, description)
@@ -205,9 +168,6 @@ class TestingAgent(BaseAgent):
         self.add_capability(AgentCapability.ANALYSIS)
     
     async def execute_task(self, task: Dict[str, Any]) -> Any:
-        """
-        Execute a testing-related task
-        """
         self.update_status("working")
         self.logger = setup_logger(f"TestingAgent_{self.id}")
         
@@ -232,9 +192,6 @@ class TestingAgent(BaseAgent):
 
 
 class TaskAgent(BaseAgent):
-    """
-    Specialized agent for task management and decomposition
-    """
     
     def __init__(self, name: str, description: str = ""):
         super().__init__(name, description)
@@ -243,9 +200,6 @@ class TaskAgent(BaseAgent):
         self.add_capability(AgentCapability.TASK_EXECUTION)
     
     async def execute_task(self, task: Dict[str, Any]) -> Any:
-        """
-        Execute a task management task
-        """
         self.update_status("working")
         self.logger = setup_logger(f"TaskAgent_{self.id}")
         
@@ -265,9 +219,6 @@ class TaskAgent(BaseAgent):
 
 
 class CommunicationAgent(BaseAgent):
-    """
-    Specialized agent for handling agent-to-agent communication
-    """
     
     def __init__(self, name: str, description: str = ""):
         super().__init__(name, description)
@@ -275,9 +226,6 @@ class CommunicationAgent(BaseAgent):
         self.add_capability(AgentCapability.COMMUNICATION)
     
     async def execute_task(self, task: Dict[str, Any]) -> Any:
-        """
-        Execute a communication task
-        """
         self.update_status("working")
         self.logger = setup_logger(f"CommunicationAgent_{self.id}")
         
