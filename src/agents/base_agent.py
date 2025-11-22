@@ -56,8 +56,14 @@ class BaseAgent(ABC):
     def clear_memory(self):
         self.memory.clear()
     
-    def communicate_with_agent(self, target_agent_id: str, message: Dict[str, Any]) -> bool:
-        pass
+    async def communicate_with_agent(self, message: Dict[str, Any]) -> bool:
+        """
+        Handle incoming messages from other agents
+        This method should be implemented by subclasses to handle specific communication needs
+        """
+        # Default implementation - just log the message
+        print(f"Agent {self.name} received message: {message}")
+        return True
     
     def get_agent_info(self) -> Dict[str, Any]:
         return {

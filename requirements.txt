@@ -1,0 +1,29 @@
+# Core dependencies for Agentic Architecture System
+asyncio
+typing
+enum34; python_version < '3.4'
+uuid
+datetime
+json
+
+# For web/Docker communication (if needed in future)
+requests
+aiohttp
+
+# Testing
+pytest
+pytest-asyncio
+
+# For potential API documentation
+fastapi
+uvicorn
+pydantic
+
+# For potential database integration
+sqlalchemy
+asyncpg
+redis
+
+# For configuration management
+pyyaml
+python-dotenv

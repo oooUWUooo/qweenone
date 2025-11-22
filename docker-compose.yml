@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  agentic-system:
+    build: .
+    container_name: agentic-system
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - agentic_data:/app/data
+    environment:
+      - PYTHONPATH=/app
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - agentic-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: agentic-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - agentic-net
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: agentic-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: agentic_db
+      POSTGRES_USER: agentic_user
+      POSTGRES_PASSWORD: agentic_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - agentic-net
+
+  # Documentation service with Scalar
+  scalar:
+    image: scalar/scalar:latest
+    container_name: agentic-docs
+    ports:
+      - "5050:80"
+    environment:
+      - SPEC_URL=https://raw.githubusercontent.com/your-org/your-repo/main/openapi.json
+    volumes:
+      - ./docs:/usr/share/nginx/html/docs
+    restart: unless-stopped
+    networks:
+      - agentic-net
+
+  # Monitoring service
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: agentic-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+    restart: unless-stopped
+    networks:
+      - agentic-net
+
+volumes:
+  agentic_data:
+  redis_data:
+  postgres_data:
+  prometheus_data:
+
+networks:
+  agentic-net:
+    driver: bridge

@@ -1,0 +1,335 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Agentic Architecture System API",
+    "description": "API for the Agentic Architecture System - a comprehensive multi-agent system with task decomposition and iterative development capabilities",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/api/v1/system/status": {
+      "get": {
+        "summary": "Get system status",
+        "description": "Retrieve the current status of the agentic system including active agents, communication stats, and execution history",
+        "responses": {
+          "200": {
+            "description": "System status information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "The time when the status was retrieved"
+                    },
+                    "active_agents": {
+                      "type": "integer",
+                      "description": "Number of currently active agents"
+                    },
+                    "agent_types": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "Types of agents currently in the system"
+                    },
+                    "execution_history_size": {
+                      "type": "integer",
+                      "description": "Number of tasks in execution history"
+                    },
+                    "queued_tasks": {
+                      "type": "integer",
+                      "description": "Number of tasks currently queued"
+                    },
+                    "a2a_stats": {
+                      "type": "object",
+                      "description": "Agent-to-agent communication statistics"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/decompose": {
+      "post": {
+        "summary": "Decompose a task",
+        "description": "Break down a high-level task into iterative subtasks following the 3-iteration development process",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "task_description": {
+                    "type": "string",
+                    "description": "Description of the task to decompose"
+                  },
+                  "iterations": {
+                    "type": "integer",
+                    "default": 3,
+                    "description": "Number of iterations for the development process"
+                  }
+                },
+                "required": ["task_description"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Decomposed task plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "original_task": {
+                      "type": "string"
+                    },
+                    "task_type": {
+                      "type": "string"
+                    },
+                    "iterations": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "iteration_number": {
+                            "type": "integer"
+                          },
+                          "description": {
+                            "type": "string"
+                          },
+                          "focus": {
+                            "type": "string"
+                          },
+                          "subtasks": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "title": {
+                                  "type": "string"
+                                },
+                                "description": {
+                                  "type": "string"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "total_subtasks": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/agents/create": {
+      "post": {
+        "summary": "Create a new agent",
+        "description": "Create a specialized agent based on the provided configuration",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["code_writer", "tester", "task_manager", "communication", "default"],
+                    "description": "Type of agent to create"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Name for the agent"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description of the agent's purpose"
+                  },
+                  "capabilities": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["task_execution", "code_writing", "testing", "analysis", "communication", "decomposition"]
+                    },
+                    "description": "Capabilities of the agent"
+                  }
+                },
+                "required": ["type"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Agent created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Unique identifier for the agent"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the agent"
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Type of the agent"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Current status of the agent"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tasks/execute": {
+      "post": {
+        "summary": "Execute a task",
+        "description": "Execute a task using the appropriate agent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "task": {
+                    "type": "object",
+                    "description": "Task object to execute"
+                  },
+                  "agent_type": {
+                    "type": "string",
+                    "description": "Type of agent to use for execution"
+                  }
+                },
+                "required": ["task"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Task execution result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "agent_id": {
+                      "type": "string"
+                    },
+                    "task_id": {
+                      "type": "string"
+                    },
+                    "result": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Task": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assigned_to": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "in_progress", "completed", "failed"]
+          },
+          "params": {
+            "type": "object"
+          }
+        }
+      },
+      "Agent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["idle", "working", "paused", "error"]
+          },
+          "capabilities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "agent_type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
