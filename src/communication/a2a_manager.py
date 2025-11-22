@@ -57,7 +57,7 @@ class A2ACommunicationManager:
     
     def __init__(self):
         self.logger = setup_logger("A2ACommunicationManager")
-        self.message_queue = asyncio.Queue()
+        self.message_queues = {}  # agent_id -> asyncio.Queue
         self.active_connections = {}  # agent_id -> connection_info
         self.message_history = []  # Store recent messages for debugging
         self.max_history_size = 1000
@@ -70,6 +70,9 @@ class A2ACommunicationManager:
             "last_heartbeat": datetime.now()
         }
         
+        # Create a message queue for this agent
+        self.message_queues[agent_id] = asyncio.Queue()
+        
         if handler_func:
             self.handlers[agent_id] = handler_func
         
@@ -78,6 +81,9 @@ class A2ACommunicationManager:
     async def unregister_agent(self, agent_id: str):
         if agent_id in self.active_connections:
             del self.active_connections[agent_id]
+        
+        if agent_id in self.message_queues:
+            del self.message_queues[agent_id]
         
         if agent_id in self.handlers:
             del self.handlers[agent_id]
@@ -96,25 +102,11 @@ class A2ACommunicationManager:
         message.status = "sent"
         self._add_to_history(message)
         
-        # If there's a handler for the receiver, call it directly
-        if message.receiver_id in self.handlers:
-            try:
-                handler = self.handlers[message.receiver_id]
-                # Call the handler asynchronously if possible
-                if asyncio.iscoroutinefunction(handler):
-                    await handler(message)
-                else:
-                    handler(message)
-                message.status = "processed"
-                return True
-            except Exception as e:
-                self.logger.error(f"Error processing message with handler: {e}")
-                message.status = "failed"
-                return False
-        else:
-            # Put the message in the queue for the receiver to pick up
-            await self.message_queue.put(message)
-            return True
+        # Put the message in the receiver's queue
+        await self.message_queues[message.receiver_id].put(message)
+        message.status = "delivered"
+        
+        return True
     
     async def broadcast_message(self, message: Message, exclude_sender: bool = True) -> int:
         sent_count = 0
@@ -140,25 +132,19 @@ class A2ACommunicationManager:
         return sent_count
     
     async def get_messages_for_agent(self, agent_id: str, limit: int = 10) -> List[Message]:
+        if agent_id not in self.message_queues:
+            return []
+        
         messages = []
-        temp_queue = []
+        queue = self.message_queues[agent_id]
         
-        # Get messages from the queue
-        while not self.message_queue.empty():
+        # Get messages from the agent's queue
+        for _ in range(min(limit, queue.qsize())):
             try:
-                message = self.message_queue.get_nowait()
-                if message.receiver_id == agent_id:
-                    messages.append(message)
-                    if len(messages) >= limit:
-                        break
-                else:
-                    temp_queue.append(message)
-            except asyncio.QueueEmpty:
+                message = await asyncio.wait_for(queue.get(), timeout=0.1)
+                messages.append(message)
+            except asyncio.TimeoutError:
                 break
-        
-        # Put back messages that weren't for this agent
-        for message in temp_queue:
-            await self.message_queue.put(message)
         
         return messages
     
@@ -204,9 +190,9 @@ class A2ACommunicationManager:
     def get_communication_stats(self) -> Dict[str, Any]:
         return {
             "active_agents": len(self.active_connections),
-            "queued_messages": self.message_queue.qsize(),
             "total_messages_processed": len(self.message_history),
-            "max_history_size": self.max_history_size
+            "max_history_size": self.max_history_size,
+            "agent_queues": {agent_id: queue.qsize() for agent_id, queue in self.message_queues.items()}
         }
     
     async def heartbeat(self, agent_id: str) -> bool:
@@ -218,3 +204,27 @@ class A2ACommunicationManager:
     
     def get_active_agents(self) -> List[str]:
         return list(self.active_connections.keys())
+    
+    async def process_agent_messages(self, agent_id: str, message_handler_func):
+        """
+        Process messages for a specific agent using the provided handler function
+        """
+        if agent_id not in self.message_queues:
+            return
+        
+        messages = await self.get_messages_for_agent(agent_id, 100)  # Get up to 100 messages
+        
+        for message in messages:
+            try:
+                # Process the message with the agent's handler
+                await message_handler_func(message)
+                message.status = "processed"
+            except Exception as e:
+                self.logger.error(f"Error processing message for agent {agent_id}: {e}")
+                message.status = "failed"
+    
+    def get_message_history(self, limit: int = 50) -> List[Dict[str, Any]]:
+        """
+        Get recent message history
+        """
+        return self.message_history[-limit:]
