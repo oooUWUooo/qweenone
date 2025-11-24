@@ -150,7 +150,7 @@ class IntegrationTester:
             
             try:
                 legacy_decomposer = TaskDecomposer()
-                legacy_result = legacy_decomposer.decompose(test_task, 3)
+                legacy_result = await asyncio.to_thread(legacy_decomposer.decompose, test_task, 3)
                 
                 legacy_time = time.time() - start_time
                 

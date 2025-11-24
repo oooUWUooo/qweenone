@@ -3,6 +3,7 @@ Modern Task Decomposition System
 
 Exports:
 - ROMAAugmentedTaskDecomposer: Main decomposer with ROMA integration
+- TaskDecompositionOrchestrator: ROMA + Agent Orchestra workflow planner
 - RecursiveTaskPlanner: Advanced recursive planning
 - Enhanced decomposition functions
 """
@@ -16,6 +17,7 @@ from .roma_decomposer import (
     DecompositionStrategy,
     enhanced_decompose
 )
+from .orchestrator import TaskDecompositionOrchestrator
 
 __all__ = [
     "ROMAAugmentedTaskDecomposer",
@@ -24,5 +26,6 @@ __all__ = [
     "RecursivePlan",
     "TaskComplexity",
     "DecompositionStrategy",
-    "enhanced_decompose"
+    "enhanced_decompose",
+    "TaskDecompositionOrchestrator"
 ]

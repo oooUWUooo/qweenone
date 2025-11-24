@@ -11,6 +11,16 @@ from src.agents.base_agent import BaseAgent, AgentCapability
 from src.utils.logger import setup_logger
 from src.agents.default_agent import DefaultAgent
 
+try:  # Optional SGR integration
+    from src.enhanced_agents.sgr_adapter import register_sgr_agent
+except Exception:  # pragma: no cover
+    register_sgr_agent = None  # type: ignore
+
+try:  # Optional Scrapybara integration
+    from src.web_research.scrapybara_adapter import register_scrapybara_agent
+except Exception:  # pragma: no cover
+    register_scrapybara_agent = None  # type: ignore
+
 class AgentConfig:
     """Configuration class for agent creation"""
     
@@ -84,6 +94,19 @@ class AgentBuilder:
         # Register default agent types
         self._register_default_agents()
         self._register_agent_profiles()
+        self._register_optional_agents()
+    
+    def _register_optional_agents(self):
+        if register_sgr_agent:
+            try:
+                register_sgr_agent(self)
+            except Exception as exc:  # pragma: no cover - optional integration errors
+                self.logger.warning(f"Failed to register SGR agent: {exc}")
+        if register_scrapybara_agent:
+            try:
+                register_scrapybara_agent(self)
+            except Exception as exc:  # pragma: no cover
+                self.logger.warning(f"Failed to register Scrapybara agent: {exc}")
     
     def _register_default_agents(self):
         # In a real system, this would register actual agent classes
@@ -195,26 +218,48 @@ class AgentBuilder:
         description = config.get("description", f"Default {agent_type} agent")
         capabilities = config.get("capabilities", [])
         
-        # Create the appropriate agent based on type
-        if agent_type == "code_writer":
-            agent = CodeAgent(name, description)
-        elif agent_type == "tester":
-            agent = TestingAgent(name, description)
-        elif agent_type == "task_manager":
-            agent = TaskAgent(name, description)
-        elif agent_type == "communication":
-            agent = CommunicationAgent(name, description)
-        elif agent_type == "researcher":
-            agent = ResearchAgent(name, description)
-        elif agent_type == "planner":
-            agent = PlanningAgent(name, description)
-        elif agent_type == "reviewer":
-            agent = ReviewAgent(name, description)
-        elif agent_type == "debugger":
-            agent = DebugAgent(name, description)
+        # Allow custom agent registry overrides first
+        registered_entry = self.agent_registry.get(agent_type)
+        if registered_entry:
+            agent_class_or_factory = registered_entry["class"]
+            default_caps = registered_entry.get("default_capabilities", [])
+            try:
+                agent = agent_class_or_factory(
+                    name=name,
+                    description=description,
+                    config=config
+                )
+            except TypeError:
+                agent = agent_class_or_factory(name, description)
+            for capability in default_caps:
+                if isinstance(capability, AgentCapability):
+                    agent.add_capability(capability)
+                elif isinstance(capability, str):
+                    try:
+                        agent.add_capability(AgentCapability(capability))
+                    except ValueError:
+                        self.logger.warning(f"Unknown default capability: {capability}")
         else:
-            # Default agent if type not recognized
-            agent = self._create_default_agent(name, description, capabilities)
+            # Create the appropriate agent based on type
+            if agent_type == "code_writer":
+                agent = CodeAgent(name, description)
+            elif agent_type == "tester":
+                agent = TestingAgent(name, description)
+            elif agent_type == "task_manager":
+                agent = TaskAgent(name, description)
+            elif agent_type == "communication":
+                agent = CommunicationAgent(name, description)
+            elif agent_type == "researcher":
+                agent = ResearchAgent(name, description)
+            elif agent_type == "planner":
+                agent = PlanningAgent(name, description)
+            elif agent_type == "reviewer":
+                agent = ReviewAgent(name, description)
+            elif agent_type == "debugger":
+                agent = DebugAgent(name, description)
+            else:
+                # Default agent if type not recognized
+                agent = self._create_default_agent(name, description, capabilities)
         
         # Add any additional capabilities from config
         for cap_name in capabilities:

@@ -23,11 +23,9 @@ import uuid
 
 # Import existing components for compatibility
 try:
-    from ..task_manager.task_decomposer import TaskDecomposer
     from ..agents.base_agent import Task as LegacyTask
     from ..utils.logger import setup_logger
 except ImportError:
-    TaskDecomposer = None
     LegacyTask = None
     setup_logger = lambda x: None
 
@@ -777,7 +775,7 @@ class ROMAAugmentedTaskDecomposer:
     
     def __init__(self):
         self.recursive_planner = RecursiveTaskPlanner()
-        self.legacy_decomposer = TaskDecomposer() if TaskDecomposer else None
+        self.legacy_decomposer = None
         self.logger = setup_logger("ROMAAugmentedTaskDecomposer")
     
     async def decompose_with_roma(self, 
@@ -824,23 +822,12 @@ class ROMAAugmentedTaskDecomposer:
                 return legacy_format
                 
             else:
-                # Fallback to legacy decomposition
-                if self.legacy_decomposer:
-                    return self.legacy_decomposer.decompose(task_description, iterations)
-                else:
-                    raise RuntimeError("Neither ROMA nor legacy decomposer available")
+                raise RuntimeError("ROMA decomposer unavailable")
                     
         except Exception as e:
             if self.logger:
                 self.logger.error(f"ROMA decomposition failed: {e}")
-            
-            # Fallback to legacy system
-            if self.legacy_decomposer:
-                if self.logger:
-                    self.logger.info("Falling back to legacy decomposer")
-                return self.legacy_decomposer.decompose(task_description, iterations)
-            else:
-                raise e
+            raise e
     
     def _convert_recursive_to_legacy(self, 
                                    plan: RecursivePlan, 

@@ -47,7 +47,7 @@ qweenone/
 │   │
 │   ├── 📂 task_manager/                  # Legacy task management
 │   │   ├── advanced_task_manager.py      # Legacy task manager (1200+ lines)
-│   │   └── task_decomposer.py            # Legacy task decomposer (200 lines)
+│   │   └── task_decomposer.py            # ROMA + Agent Orchestra wrapper
 │   │
 │   ├── 📂 workflow_engine/               # 🆕 Modern workflow orchestration
 │   │   ├── __init__.py
@@ -204,18 +204,20 @@ from src.main import AgenticSystem
 |---------|---------|----------|
 | `PrefectTaskManagerAdapter` | Use Prefect with legacy API | workflow_engine/prefect_manager.py |
 | `ModernTask.to_legacy_task()` | Convert task formats | workflow_engine/prefect_manager.py |
-| `decompose_with_roma(..., use_recursive=False)` | Legacy-compatible decomposition | task_decomposition/roma_decomposer.py |
+| `TaskDecomposer.decompose(...)` | Legacy-compatible ROMA orchestration | task_manager/task_decomposer.py |
 
 ### Legacy → Modern Upgrades
 
 All legacy components can be gradually replaced without breaking changes:
 
 ```python
+from src.task_manager.task_decomposer import TaskDecomposer
+
 # Start with legacy
 system = AgenticSystem()
 
 # Swap in modern components one by one
-system.task_decomposer = ROMAAugmentedTaskDecomposer()  # ✅ Works!
+system.task_decomposer = TaskDecomposer()               # ✅ Works!
 system.workflow_manager = PrefectWorkflowManager()      # ✅ Works!
 
 # Or use full modern system

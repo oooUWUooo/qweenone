@@ -39,31 +39,31 @@ result = await manager.execute_workflow(tasks, workflow_name="my_workflow")
 
 ---
 
-### 2. **Task Decomposition: ROMA (Recursive Open Meta-Agent)**
+### 2. **Task Decomposition: ROMA + Agent Orchestra**
 **Replaces:** `TaskDecomposer`
 
 - ✅ Recursive task breakdown (up to 5 levels deep)
 - ✅ Context-aware decomposition based on complexity
-- ✅ Intelligent agent type inference
-- ✅ Dynamic dependency resolution
-- ✅ Automation potential scoring
-- ✅ Complexity analysis and confidence metrics
+- ✅ Intelligent agent type inference with automation scoring
+- ✅ Dynamic dependency resolution with confidence metrics
+- ✅ AgentOrchestra team formation per iteration
+- ✅ Automation focus insights for computer use workflows
 
-**Location:** `src/task_decomposition/roma_decomposer.py`
+**Location:** `src/task_decomposition/orchestrator.py`
 
 ```python
-from src.task_decomposition.roma_decomposer import ROMAAugmentedTaskDecomposer
+from src.task_decomposition.orchestrator import TaskDecompositionOrchestrator
 
-decomposer = ROMAAugmentedTaskDecomposer()
+orchestrator = TaskDecompositionOrchestrator()
 
-plan = await decomposer.decompose_with_roma(
+plan = await orchestrator.create_plan(
     "Create Instagram scraper with authentication",
-    iterations=3,
-    use_recursive=True
+    iterations=3
 )
 
 print(f"Total subtasks: {plan['total_subtasks']}")
-print(f"Automation potential: {plan['roma_enhanced']['recursive_plan']['automation_score']:.1%}")
+print(f"Automation focus: {plan['automation_focus']['automation_score']:.1%}")
+print(f"Agent teams: {len(plan['agent_teams'])}")
 ```
 
 ---
@@ -152,7 +152,7 @@ print(f"Cost: ${result['cost']:.6f}")
 **Supported Providers:**
 - OpenAI (GPT-3.5, GPT-4, GPT-4-turbo)
 - Anthropic (Claude 3: Haiku, Sonnet, Opus)
-- Google (Gemini Pro, PaLM)
+- Google (Gemini 2.0 Flash, Gemini Pro, PaLM)
 - Cohere (Command, Command-R)
 - OpenRouter (100+ models aggregated)
 - Azure OpenAI
@@ -193,6 +193,31 @@ await manager.send_message(message)
 
 # Broadcast
 await manager.broadcast_message(message)
+```
+
+---
+
+### 7. **Hierarchical Agent Collaboration: Agent Orchestra**
+**Enhances:** Multi-agent task execution
+
+- ✅ Planning, execution, monitoring, validation roles
+- ✅ Dynamic team creation per ROMA iteration
+- ✅ Shared knowledge base with collaboration history
+- ✅ Works with Prefect pipelines and automation layers
+
+**Location:** `src/enhanced_agents/orchestra_integration.py`
+
+```python
+from src.enhanced_agents.orchestra_integration import AgentOrchestra
+
+orchestra = AgentOrchestra()
+team = orchestra.create_agent_team(
+    team_name="AutomationSprint",
+    task_objective="Ship desktop automation flow",
+    required_capabilities=["desktop_automation", "testing", "planning"]
+)
+
+print(orchestra.get_orchestra_stats())
 ```
 
 ---
