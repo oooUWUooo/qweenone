@@ -1,0 +1,102 @@
+# Modern Agentic Architecture System - Updated Dependencies
+
+# ================================
+# CORE WORKFLOW ORCHESTRATION
+# ================================
+prefect>=3.0.0                    # Modern Python-native workflow orchestration
+prefect[postgres]>=3.0.0          # PostgreSQL support for Prefect
+prefect[redis]>=3.0.0             # Redis support for Prefect
+
+# ================================
+# BROWSER & WEB AUTOMATION
+# ================================  
+playwright>=1.45.0                # Modern browser automation
+selenium>=4.15.0                  # Legacy browser support (fallback)
+beautifulsoup4>=4.12.0           # HTML parsing
+requests>=2.31.0                  # HTTP requests
+aiohttp>=3.9.0                    # Async HTTP client
+
+# ================================
+# DESKTOP & GUI AUTOMATION
+# ================================
+pyautogui>=0.9.54                # Desktop automation  
+pywinauto>=0.6.8                 # Windows GUI automation
+pillow>=10.0.0                   # Image processing
+opencv-python>=4.8.0             # Computer vision
+pytesseract>=0.3.10              # OCR text recognition
+
+# ================================
+# LLM INTEGRATION & API ROUTING
+# ================================
+litellm>=1.0.0                   # Universal LLM API gateway
+openai>=1.0.0                    # OpenAI API
+anthropic>=0.25.0                # Anthropic Claude API
+pydantic>=2.5.0                  # Data validation
+
+# ================================  
+# TASK QUEUES & MESSAGING
+# ================================
+redis>=5.0.0                     # Redis for caching and queues
+rq>=1.15.0                       # Simple Redis-based job queue
+celery>=5.3.0                    # Advanced distributed task queue (optional)
+
+# ================================
+# AGENT FRAMEWORKS & AI TOOLS
+# ================================
+langchain>=0.1.0                 # LangChain for LLM workflows
+langchain-community>=0.0.20      # Community integrations
+crewai>=0.28.0                   # Multi-agent orchestration
+instructor>=0.4.0                # Structured LLM outputs
+
+# ================================
+# DATA PROCESSING & ANALYSIS
+# ================================
+pandas>=2.1.0                    # Data manipulation
+numpy>=1.24.0                    # Numerical computing
+scikit-learn>=1.3.0             # Machine learning
+httpx>=0.25.0                    # Modern HTTP client
+
+# ================================
+# DEVELOPMENT & TESTING
+# ================================
+pytest>=7.4.0                    # Testing framework
+pytest-asyncio>=0.21.0          # Async testing
+black>=23.0.0                    # Code formatting
+isort>=5.12.0                   # Import sorting
+mypy>=1.5.0                     # Type checking
+pre-commit>=3.4.0               # Git hooks
+
+# ================================
+# UTILITIES & HELPERS
+# ================================
+python-dotenv>=1.0.0            # Environment variables
+pyyaml>=6.0.0                   # YAML parsing
+click>=8.1.0                    # CLI framework
+rich>=13.5.0                    # Rich console output
+loguru>=0.7.0                   # Modern logging
+
+# ================================
+# LEGACY COMPATIBILITY
+# ================================  
+asyncio                          # Async support (built-in)
+typing                           # Type hints (built-in)
+uuid                             # UUID generation (built-in)
+datetime                         # Date/time (built-in)
+json                             # JSON parsing (built-in)
+
+# ================================
+# OPTIONAL ADVANCED FEATURES
+# ================================
+# torch>=2.0.0                   # PyTorch for ML models (uncomment if needed)
+# transformers>=4.35.0           # Hugging Face transformers (uncomment if needed)
+# chromadb>=0.4.0                # Vector database (uncomment if needed)
+# fastapi>=0.104.0               # Web API framework (uncomment if needed)
+# uvicorn>=0.24.0                # ASGI server (uncomment if needed)
+
+# ================================
+# SPECIALIZED AUTOMATION TOOLS
+# ================================
+# These might need manual installation or custom setup:
+# omniparser                     # Microsoft's vision-based GUI agent
+# roma-agent                     # Recursive meta-agent framework  
+# orchestra                      # Cognitive multi-agent architecture
