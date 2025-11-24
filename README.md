@@ -4,10 +4,11 @@
 
 ### Modern v2.0 Features
 - ⚡ **Prefect Workflow Orchestration**: Production-ready task management with auto-retries
-- 🧠 **ROMA Recursive Decomposition**: AI-guided task breakdown up to 5 levels deep
+- 🧠 **ROMA + Agent Orchestra Planner**: AI-guided decomposition with hierarchical agent teams
 - 👁️ **OmniParser Desktop Automation**: Vision-based GUI control with natural language
 - 🌐 **Playwright Browser Automation**: Modern web automation with auto-waiting
-- 🔀 **LiteLLM Universal Router**: Access 100+ LLM providers through one API
+- 🔀 **LiteLLM Universal Router**: Access 100+ LLM providers including Gemini 2.0 Flash
+- 🎯 **Automation Focus Analytics**: Computer-use prioritization for desktop and browser flows
 - 📡 **Redis/RabbitMQ A2A Communication**: Enterprise messaging with persistence
 
 ### Core Features (v1.0)
@@ -41,7 +42,7 @@
 - **AgenticSystem**: Main orchestrator managing agents, tasks, and execution
 - **BaseAgent**: Abstract base class for all agent types
 - **A2ACommunicationManager**: Handles agent-to-agent communication
-- **TaskDecomposer**: Breaks down tasks into iterative subtasks
+- **TaskDecompositionOrchestrator**: ROMA-powered decomposition with AgentOrchestra teams
 - **TestRunner**: Executes tests with multiple frameworks
 - **AgentBuilder**: Creates specialized agents based on requirements
 
@@ -161,10 +162,10 @@ Documentation is available via Scalar at `http://localhost:5050` when running wi
 
 ### Task Decomposition
 
-The system supports recursive task decomposition. Complex tasks are automatically broken down into:
+The system uses ROMA and Agent Orchestra via the TaskDecompositionOrchestrator to break down complex objectives into collaborative plans:
 - High-level iterations (3 iterations by default)
-- Subtasks within each iteration
-- Primitive operations at the lowest level
+- Subtasks within each iteration mapped to agent capabilities
+- Automation focus metrics for desktop and browser execution
 
 ### Communication Patterns
 
@@ -248,28 +249,16 @@ This project is licensed under the MIT License.
 
 
 
-```
-Исследовать ключевые инструменты для интеграции 
-
-Спроектировать новую архитектуру с готовыми компонентами 
-
-Заменить AdvancedTaskManager на Prefect 
-
-Заменить TaskDecomposer на AgentOrchestra/ROMA
-
-Добавить OmniParser + PyAutoGUI для desktop automation
-
-Интегрировать Playwright для web automation
-
-Модернизировать систему агентов с использованием найденных фреймворков
-
-Упростить API роутинг с LiteLLM  <- now
-
-Улучшить A2A коммуникации с современными инструментами
-
-Добавить тестирование новых компонентов
-
-Обновить развертывание без Kubernetes
-
-Обновить документацию для новой архитектуры
+- [x] Исследовать ключевые инструменты для интеграции
+- [x] Спроектировать новую архитектуру с готовыми компонентами
+- [x] Заменить AdvancedTaskManager на Prefect
+- [x] Заменить TaskDecomposer на AgentOrchestra/ROMA
+- [x] Добавить OmniParser + PyAutoGUI для desktop automation
+- [x] Интегрировать Playwright для web automation
+- [x] Модернизировать систему агентов с использованием найденных фреймворков
+- [x] Упростить API роутинг с LiteLLM (добавлена поддержка Gemini 2.0 Flash)
+- [x] Улучшить A2A коммуникации с современными инструментами
+- [x] Добавить тестирование новых компонентов
+- [x] Обновить развертывание без Kubernetes
+- [x] Обновить документацию для новой архитектуры
 ```

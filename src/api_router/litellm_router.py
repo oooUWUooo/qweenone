@@ -16,6 +16,7 @@ Key Features:
 """
 
 import asyncio
+import os
 import time
 from typing import Dict, Any, List, Optional, Union
 from dataclasses import dataclass, field
@@ -129,7 +130,7 @@ class LiteLLMUnifiedRouter:
     def _create_default_model_list(self) -> List[Dict[str, Any]]:
         """Create default model configuration list"""
         
-        return [
+        models = [
             {
                 "model_name": "gpt-3.5-turbo",
                 "litellm_params": {
@@ -183,6 +184,19 @@ class LiteLLMUnifiedRouter:
                 }
             },
             {
+                "model_name": "gemini-2.0-flash",
+                "litellm_params": {
+                    "model": "gemini/gemini-2.0-flash",
+                    "api_key": "os.environ/GOOGLE_API_KEY",
+                    "timeout": 300,
+                },
+                "model_info": {
+                    "supports_function_calling": True,
+                    "supports_vision": True,
+                    "max_tokens": 8192,
+                }
+            },
+            {
                 "model_name": "openrouter-auto",
                 "litellm_params": {
                     "model": "openrouter/auto",
@@ -196,6 +210,26 @@ class LiteLLMUnifiedRouter:
                 }
             },
         ]
+        scrapybara_key = os.getenv("SCRAPYBARA_API_KEY")
+        if scrapybara_key:
+            api_base = os.getenv("SCRAPYBARA_API_BASE", "https://api.scrapybara.com")
+            models.append(
+                {
+                    "model_name": "scrapybara-research",
+                    "litellm_params": {
+                        "model": "scrapybara/research",
+                        "api_key": "os.environ/SCRAPYBARA_API_KEY",
+                        "api_base": api_base,
+                        "timeout": int(os.getenv("SCRAPYBARA_TASK_TIMEOUT", "600")),
+                    },
+                    "model_info": {
+                        "supports_function_calling": False,
+                        "supports_vision": True,
+                        "max_tokens": 8192,
+                    }
+                }
+            )
+        return models
     
     async def chat_completion(
         self,

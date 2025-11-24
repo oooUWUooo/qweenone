@@ -78,6 +78,10 @@ class TestPrefectWorkflowManager:
         assert result is not None
         assert "decomposition" in result
         assert "modern_tasks" in result
+        assert "agent_teams" in result
+        assert isinstance(result["agent_teams"], list)
+        assert "automation_focus" in result
+        assert isinstance(result["automation_focus"], dict)
 
 
 @pytest.mark.asyncio
@@ -269,6 +273,7 @@ class TestLiteLLMRouter:
             
             assert len(models) > 0
             assert any("gpt" in model.lower() for model in models)
+            assert any("gemini" in model.lower() for model in models)
             
         except Exception:
             pytest.skip("LiteLLM not available")
@@ -295,7 +300,7 @@ class TestModernAgenticSystem:
         
         assert system is not None
         assert system.workflow_manager is not None
-        assert system.task_decomposer is not None
+        assert system.task_orchestrator is not None
         
         status = system.get_system_status()
         assert status["system"] == "Modern Qweenone Agentic Architecture"
@@ -317,6 +322,10 @@ class TestModernAgenticSystem:
         
         assert result is not None
         assert "total_subtasks" in result
+        assert "agent_teams" in result
+        assert isinstance(result["agent_teams"], list)
+        assert "automation_focus" in result
+        assert isinstance(result["automation_focus"], dict)
         
         await system.close()
     

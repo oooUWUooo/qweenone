@@ -27,15 +27,14 @@ from dataclasses import dataclass
 try:
     from ..agents.base_agent import BaseAgent, Task as LegacyTask, TaskStatus
     from ..builders.agent_builder import AgentBuilder
-    from ..task_manager.task_decomposer import TaskDecomposer
+    from ..task_decomposition.orchestrator import TaskDecompositionOrchestrator
     from ..utils.logger import setup_logger
 except ImportError:
-    # Fallback for testing or standalone usage
     BaseAgent = None
     LegacyTask = None
     TaskStatus = None
     AgentBuilder = None
-    TaskDecomposer = None
+    TaskDecompositionOrchestrator = None
     setup_logger = lambda x: None
 
 
@@ -105,7 +104,7 @@ class PrefectWorkflowManager:
         
         # Initialize agent builder for task execution
         self.agent_builder = AgentBuilder() if AgentBuilder else None
-        self.task_decomposer = TaskDecomposer() if TaskDecomposer else None
+        self.task_orchestrator = TaskDecompositionOrchestrator() if TaskDecompositionOrchestrator else None
         
         # Prefect configuration
         self.task_runner = ConcurrentTaskRunner(max_workers=concurrent_limit)
@@ -173,51 +172,40 @@ class PrefectWorkflowManager:
                                   task_description: str,
                                   iterations: int = 3,
                                   auto_execute: bool = True) -> Dict[str, Any]:
-        """
-        Decompose complex task and execute using modern workflow
-        
-        Integrates TaskDecomposer with Prefect workflow execution
-        """
-        if not self.task_decomposer:
-            raise RuntimeError("TaskDecomposer not available")
-        
-        # Use existing task decomposition logic
-        decomposition = self.task_decomposer.decompose(task_description, iterations)
-        
-        # Convert decomposed tasks to ModernTask format
+        if not self.task_orchestrator:
+            raise RuntimeError("Task orchestrator not available")
+        plan = await self.task_orchestrator.create_plan(task_description, iterations)
         modern_tasks = []
-        
-        for iteration in decomposition["iterations"]:
-            for subtask in iteration["subtasks"]:
-                modern_task = ModernTask(
-                    id=f"task_{len(modern_tasks) + 1}",
-                    title=subtask["title"],
-                    description=subtask["description"],
-                    agent_type=subtask.get("agent_type", "default"),
-                    priority=3,
-                    tags=[f"iteration_{iteration['iteration_number']}", "decomposed"]
+        for iteration in plan.get("iterations", []):
+            for subtask in iteration.get("subtasks", []):
+                modern_tasks.append(
+                    ModernTask(
+                        id=subtask.get("id", f"task_{len(modern_tasks) + 1}"),
+                        title=subtask.get("title", "Untitled"),
+                        description=subtask.get("description", ""),
+                        agent_type=subtask.get("agent_type", "default"),
+                        priority=subtask.get("priority", 3),
+                        tags=[f"iteration_{iteration['iteration_number']}", "roma"]
+                    )
                 )
-                modern_tasks.append(modern_task)
-        
+        response: Dict[str, Any] = {
+            "decomposition": plan,
+            "agent_teams": plan.get("agent_teams", []),
+            "automation_focus": plan.get("automation_focus", {}),
+            "total_tasks": len(modern_tasks)
+        }
         if auto_execute:
-            # Execute decomposed workflow
             workflow_result = await self.execute_workflow(
                 tasks=modern_tasks,
                 workflow_name=f"decomposed_{task_description[:20]}"
             )
-            
-            return {
-                "decomposition": decomposition,
-                "execution_result": workflow_result,
-                "total_tasks": len(modern_tasks),
-                "status": "completed" if workflow_result.get("success") else "failed"
-            }
+            response["execution_result"] = workflow_result
+            response["status"] = "completed" if workflow_result.get("success") else "failed"
         else:
-            return {
-                "decomposition": decomposition,
-                "modern_tasks": [task.to_legacy_task() for task in modern_tasks],
-                "ready_for_execution": True
-            }
+            response["modern_tasks"] = [task.to_legacy_task() for task in modern_tasks]
+            response["ready_for_execution"] = True
+            response["status"] = "planned"
+        return response
     
     async def _execute_legacy_fallback(self, 
                                      tasks: List[ModernTask],

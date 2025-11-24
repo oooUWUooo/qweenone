@@ -11,7 +11,7 @@ Complete guide for migrating from legacy Qweenone to modern architecture with mi
 | Component | Legacy (v1.0) | Modern (v2.0) | Migration Difficulty |
 |-----------|---------------|---------------|---------------------|
 | Task Manager | AdvancedTaskManager | Prefect Workflows | 🟡 Medium |
-| Task Decomposer | TaskDecomposer | ROMA Recursive Planner | 🟢 Easy |
+| Task Decomposer | TaskDecomposer | ROMA + Agent Orchestra Planner | 🟢 Easy |
 | Desktop Automation | ❌ None | OmniParser + PyAutoGUI | 🟢 Easy (new feature) |
 | Browser Automation | ❌ None | Playwright | 🟢 Easy (new feature) |
 | API Router | Custom APIRouter | LiteLLM Router | 🟡 Medium |
@@ -190,23 +190,25 @@ plan = decomposer.decompose("Create API server", iterations=3)
 
 **After (Modern):**
 ```python
-from src.task_decomposition.roma_decomposer import ROMAAugmentedTaskDecomposer
+from src.task_decomposition.orchestrator import TaskDecompositionOrchestrator
 
-decomposer = ROMAAugmentedTaskDecomposer()
-plan = await decomposer.decompose_with_roma(
+orchestrator = TaskDecompositionOrchestrator()
+plan = await orchestrator.create_plan(
     "Create API server",
-    iterations=3,
-    use_recursive=True
+    iterations=3
 )
 
-# Access ROMA enhancements
-roma_data = plan["roma_enhanced"]["recursive_plan"]
-print(f"Automation potential: {roma_data['automation_score']:.1%}")
+automation = plan["automation_focus"]["automation_score"]
+teams = plan["agent_teams"]
+print(f"Automation potential: {automation:.1%}")
+print(f"Teams provisioned: {len(teams)}")
 ```
 
 **Migration Notes:**
-- Replace sync `decompose()` with async `decompose_with_roma()`
-- Access enhanced data through `roma_enhanced` key
+- Use `TaskDecompositionOrchestrator` for ROMA + Agent Orchestra planning
+- Synchronous contexts can call `create_plan_sync()`
+- Automation insights available via `automation_focus`
+- Agent assignments provided in `agent_teams`
 - Benefits: deeper decomposition, automation scoring, confidence metrics
 
 ---
@@ -557,18 +559,17 @@ system = ModernAgenticSystem(
 
 ```python
 from src.main import AgenticSystem
-from src.task_decomposition.roma_decomposer import ROMAAugmentedTaskDecomposer
+from src.task_manager.task_decomposer import TaskDecomposer
 
 system = AgenticSystem()
 
-# Replace legacy decomposer with ROMA
-system.task_decomposer = ROMAAugmentedTaskDecomposer()
+# Replace legacy decomposer with ROMA + Agent Orchestra wrapper
+system.task_decomposer = TaskDecomposer()
 
-# Use modern decomposition
-plan = await system.task_decomposer.decompose_with_roma(
+# Use modern decomposition synchronously
+plan = system.task_decomposer.decompose(
     task_description="Create parser",
-    iterations=3,
-    use_recursive=False  # Disable recursion for legacy compatibility
+    iterations=3
 )
 ```
 

@@ -21,7 +21,7 @@ from pathlib import Path
 from src.utils.logger import setup_logger
 
 from src.workflow_engine.prefect_manager import PrefectWorkflowManager, ModernTask
-from src.task_decomposition.roma_decomposer import ROMAAugmentedTaskDecomposer
+from src.task_decomposition.orchestrator import TaskDecompositionOrchestrator
 from src.desktop_automation.omni_automation import OmniDesktopAutomation, DesktopAutomationAgent
 from src.browser_automation.playwright_automation import PlaywrightAutomation, BrowserAutomationAgent
 from src.api_router.litellm_router import LiteLLMUnifiedRouter, LiteLLMConfig
@@ -65,7 +65,7 @@ class ModernAgenticSystem:
         
         self.workflow_manager = PrefectWorkflowManager() if use_prefect else None
         
-        self.task_decomposer = ROMAAugmentedTaskDecomposer() if use_roma else None
+        self.task_orchestrator = TaskDecompositionOrchestrator(enable_orchestra=use_roma) if use_roma else None
         
         self.desktop_automation = OmniDesktopAutomation() if enable_desktop_automation else None
         
@@ -122,27 +122,24 @@ class ModernAgenticSystem:
         
         self.logger.info(f"📋 Decomposing task: {task_description}")
         
-        if self.use_roma and self.task_decomposer:
+        if self.use_roma and self.task_orchestrator:
             try:
-                decomposition = await self.task_decomposer.decompose_with_roma(
-                    task_description,
-                    iterations=iterations,
-                    use_recursive=True
-                )
-                
-                self.logger.info(f"✅ ROMA decomposition complete: {decomposition['total_subtasks']} subtasks")
-                
-                if "roma_enhanced" in decomposition:
-                    roma_data = decomposition["roma_enhanced"]["recursive_plan"]
-                    self.logger.info(f"   • Automation potential: {roma_data['automation_score']:.1%}")
-                    self.logger.info(f"   • Confidence: {roma_data['confidence']:.1%}")
-                
-                return decomposition
-                
+                plan = await self.task_orchestrator.create_plan(task_description, iterations)
+                self.logger.info(f"✅ ROMA decomposition complete: {plan.get('total_subtasks', 0)} subtasks")
+                automation = plan.get("automation_focus", {})
+                if automation:
+                    score = automation.get("automation_score", 0.0)
+                    confidence = automation.get("confidence", 0.0)
+                    self.logger.info(f"   • Automation potential: {score:.1%}")
+                    self.logger.info(f"   • Confidence: {confidence:.1%}")
+                    if automation.get("automation_iterations"):
+                        self.logger.info(f"   • Automation iterations: {automation['automation_iterations']}")
+                if plan.get("agent_teams"):
+                    self.logger.info(f"   • Agent teams: {len(plan['agent_teams'])}")
+                return plan
             except Exception as e:
                 self.logger.error(f"ROMA decomposition failed: {e}")
                 self.logger.info("Falling back to legacy decomposition")
-        
         from src.task_manager.task_decomposer import TaskDecomposer
         legacy_decomposer = TaskDecomposer()
         return legacy_decomposer.decompose(task_description, iterations)
@@ -226,6 +223,14 @@ class ModernAgenticSystem:
             self.logger.error(f"Browser automation failed: {e}")
             return {"success": False, "error": str(e)}
     
+    def _detect_automation_target(self, plan: Dict[str, Any]) -> str:
+        for iteration in plan.get("iterations", []):
+            for subtask in iteration.get("subtasks", []):
+                text = f"{subtask.get('title', '')} {subtask.get('description', '')}".lower()
+                if any(keyword in text for keyword in ["browser", "web", "playwright", "scrape"]):
+                    return "browser"
+        return "desktop"
+    
     async def llm_query(self, 
                        prompt: str, 
                        model: str = "gpt-3.5-turbo") -> Dict[str, Any]:
@@ -300,12 +305,21 @@ class ModernAgenticSystem:
                 )
                 pipeline_result["phases"]["workflow_execution"] = workflow_result
             
-            if "automation" in task_description.lower() or "gui" in task_description.lower():
+            automation_focus = decomposition.get("automation_focus", {})
+            if automation_focus:
+                pipeline_result["automation_focus"] = automation_focus
+            if automation_focus.get("high_priority"):
+                target = self._detect_automation_target(decomposition)
+                if target == "browser":
+                    automation_result = await self.execute_browser_automation(task_description)
+                else:
+                    automation_result = await self.execute_desktop_automation(task_description)
+                pipeline_result["phases"]["automation"] = automation_result
+            elif "automation" in task_description.lower() or "gui" in task_description.lower():
                 if "browser" in task_description.lower() or "web" in task_description.lower():
                     automation_result = await self.execute_browser_automation(task_description)
                 else:
                     automation_result = await self.execute_desktop_automation(task_description)
-                
                 pipeline_result["phases"]["automation"] = automation_result
             
             pipeline_result["status"] = "completed"

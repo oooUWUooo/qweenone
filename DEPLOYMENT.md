@@ -75,6 +75,20 @@ docker-compose -f docker-compose.modern.yml exec qweenone-modern \
   python src/modern_main.py --status
 ```
 
+### Environment Variables
+
+Populate `.env` with provider keys before starting services:
+
+```
+LITELLM_ROUTING_STRATEGY=least-busy
+OPENAI_API_KEY=your-openai-key
+ANTHROPIC_API_KEY=your-anthropic-key
+GOOGLE_API_KEY=your-gemini-key
+OPENROUTER_API_KEY=optional-openrouter-key
+REDIS_URL=redis://redis:6379/0
+RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672/
+```
+
 ### Service Management
 
 ```bash
