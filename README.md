@@ -1,10 +1,6 @@
-# Qweenone - Modern Agentic Architecture System v2.0
-
-A comprehensive, production-ready agentic system with **modern frameworks integration**: Prefect workflows, ROMA recursive task decomposition, OmniParser desktop automation, Playwright browser control, LiteLLM universal API routing, and enterprise A2A communication.
-
+# Qweenone 
 > **🆕 NEW:** Fully modernized with industry-leading tools - see [MODERN_ARCHITECTURE.md](./MODERN_ARCHITECTURE.md) for details
 
-## ✨ Features
 
 ### Modern v2.0 Features
 - ⚡ **Prefect Workflow Orchestration**: Production-ready task management with auto-retries
