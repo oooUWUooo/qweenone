@@ -204,3 +204,40 @@ The architecture supports horizontal scaling through:
 ## License
 
 This project is licensed under the MIT License.
+
+
+
+
+
+
+
+
+
+
+
+
+```
+Исследовать ключевые инструменты для интеграции 
+
+Спроектировать новую архитектуру с готовыми компонентами 
+
+Заменить AdvancedTaskManager на Prefect 
+
+Заменить TaskDecomposer на AgentOrchestra/ROMA
+
+Добавить OmniParser + PyAutoGUI для desktop automation
+
+Интегрировать Playwright для web automation
+
+Модернизировать систему агентов с использованием найденных фреймворков
+
+Упростить API роутинг с LiteLLM  <- now
+
+Улучшить A2A коммуникации с современными инструментами
+
+Добавить тестирование новых компонентов
+
+Обновить развертывание без Kubernetes
+
+Обновить документацию для новой архитектуры
+```
