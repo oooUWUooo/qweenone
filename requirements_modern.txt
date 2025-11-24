@@ -90,8 +90,8 @@ json                             # JSON parsing (built-in)
 # torch>=2.0.0                   # PyTorch for ML models (uncomment if needed)
 # transformers>=4.35.0           # Hugging Face transformers (uncomment if needed)
 # chromadb>=0.4.0                # Vector database (uncomment if needed)
-# fastapi>=0.104.0               # Web API framework (uncomment if needed)
-# uvicorn>=0.24.0                # ASGI server (uncomment if needed)
+fastapi>=0.104.0               # Web API framework
+uvicorn>=0.24.0                # ASGI server
 
 # ================================
 # SPECIALIZED AUTOMATION TOOLS
@@ -100,3 +100,16 @@ json                             # JSON parsing (built-in)
 # omniparser                     # Microsoft's vision-based GUI agent
 # roma-agent                     # Recursive meta-agent framework  
 # orchestra                      # Cognitive multi-agent architecture
+
+# ================================
+# RABBITMQ INTEGRATION
+# ================================
+aio-pika>=9.0.0                # Async RabbitMQ client
+pika>=1.3.0                    # Sync RabbitMQ fallback
+
+# ================================
+# ADDITIONAL DEPENDENCIES
+# ================================
+tenacity>=8.2.0                # Retry utilities
+tqdm>=4.66.0                   # Progress bars
+colorama>=0.4.6                # Colored terminal output

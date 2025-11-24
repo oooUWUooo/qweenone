@@ -1,5 +1,24 @@
-# Desktop Automation with Vision-Based GUI Control
-from .omni_automation import OmniDesktopAutomation, DesktopAutomationAgent
-from .vision_gui_agent import VisionGUIAgent
+"""
+Desktop Automation System
 
-__all__ = ["OmniDesktopAutomation", "DesktopAutomationAgent", "VisionGUIAgent"]
+Exports:
+- OmniDesktopAutomation: Vision-based desktop automation
+- DesktopAutomationAgent: Agent system integration
+- Helper functions
+"""
+
+from .omni_automation import (
+    OmniDesktopAutomation,
+    DesktopAutomationAgent,
+    GUIElement,
+    AutomationStep,
+    execute_desktop_automation
+)
+
+__all__ = [
+    "OmniDesktopAutomation",
+    "DesktopAutomationAgent",
+    "GUIElement",
+    "AutomationStep",
+    "execute_desktop_automation"
+]

@@ -13,7 +13,7 @@ CrewAI Benefits:
 """
 
 import asyncio
-from typing import Dict, Any, List, Optional, Callable
+from typing import Dict, Any, List, Optional, Callable, Union
 from dataclasses import dataclass, field
 from datetime import datetime
 import json

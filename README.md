@@ -1,17 +1,26 @@
-# Agentic Architecture System
+# Qweenone - Modern Agentic Architecture System v2.0
 
-A comprehensive, production-ready agentic system with multi-agent communication, task decomposition, and iterative development capabilities.
+A comprehensive, production-ready agentic system with **modern frameworks integration**: Prefect workflows, ROMA recursive task decomposition, OmniParser desktop automation, Playwright browser control, LiteLLM universal API routing, and enterprise A2A communication.
 
-## Features
+> **🆕 NEW:** Fully modernized with industry-leading tools - see [MODERN_ARCHITECTURE.md](./MODERN_ARCHITECTURE.md) for details
 
+## ✨ Features
+
+### Modern v2.0 Features
+- ⚡ **Prefect Workflow Orchestration**: Production-ready task management with auto-retries
+- 🧠 **ROMA Recursive Decomposition**: AI-guided task breakdown up to 5 levels deep
+- 👁️ **OmniParser Desktop Automation**: Vision-based GUI control with natural language
+- 🌐 **Playwright Browser Automation**: Modern web automation with auto-waiting
+- 🔀 **LiteLLM Universal Router**: Access 100+ LLM providers through one API
+- 📡 **Redis/RabbitMQ A2A Communication**: Enterprise messaging with persistence
+
+### Core Features (v1.0)
 - **Multi-Agent Architecture**: Dynamic agent creation and management
 - **A2A Communication**: Agent-to-agent messaging with individual queues
-- **Task Decomposition**: 3-iteration development process (basic → enhanced → advanced)
-- **Recursive Task Breakdown**: Decompose tasks to primitive operations
+- **Task Decomposition**: Iterative development process
 - **Testing Framework**: Integrated testing with pytest/unittest support
 - **Containerization**: Docker and Docker Compose support
-- **Monitoring**: Prometheus integration for metrics
-- **Documentation**: Scalar-based API documentation
+- **Monitoring**: Prometheus + Grafana integration
 
 ## Architecture Overview
 
@@ -55,31 +64,58 @@ A comprehensive, production-ready agentic system with multi-agent communication,
 - Docker and Docker Compose
 - Git
 
-### Quick Start
+### Quick Start (Modern v2.0)
 
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd agentic-architecture
+cd qweenone
 
-# Install dependencies
+# Install modern dependencies
+pip install -r requirements_modern.txt
+
+# Install Playwright browsers
+playwright install chromium
+
+# Run the modern system
+python src/modern_main.py --task "Create a web scraper" --iterations 3
+
+# View system status
+python src/modern_main.py --status
+```
+
+### Legacy v1.0
+
+```bash
+# Install legacy dependencies
 pip install -r requirements.txt
 
-# Run the system
+# Run legacy system
 python src/main.py --task "Create a web server" --iterations 3
 ```
 
-### Docker Deployment
+### Docker Deployment (Modern)
 
 ```bash
-# Build and start services
+# Build and start modern stack with all services
+docker-compose -f docker-compose.modern.yml up --build
+
+# Access services:
+# - Prefect UI: http://localhost:4200
+# - RabbitMQ Management: http://localhost:15672
+# - Prometheus: http://localhost:9090
+# - Grafana: http://localhost:3000
+
+# Run a task in container
+docker-compose -f docker-compose.modern.yml exec qweenone-modern \
+  python src/modern_main.py --task "Create a web server"
+```
+
+### Legacy Docker Deployment
+
+```bash
+# Use legacy docker-compose
 docker-compose up --build
-
-# Run a specific task
-docker-compose exec agentic-system python src/main.py --task "Create a web server" --iterations 3
-
-# View system status
-docker-compose exec agentic-system python src/main.py --status
 ```
 
 ## Usage
