@@ -1,4 +1,28 @@
-# Advanced Task Decomposition with ROMA Integration
-from .roma_decomposer import ROMAAugmentedTaskDecomposer, RecursiveTaskPlanner
+"""
+Modern Task Decomposition System
 
-__all__ = ["ROMAAugmentedTaskDecomposer", "RecursiveTaskPlanner"]
+Exports:
+- ROMAAugmentedTaskDecomposer: Main decomposer with ROMA integration
+- RecursiveTaskPlanner: Advanced recursive planning
+- Enhanced decomposition functions
+"""
+
+from .roma_decomposer import (
+    ROMAAugmentedTaskDecomposer,
+    RecursiveTaskPlanner,
+    RecursiveSubtask,
+    RecursivePlan,
+    TaskComplexity,
+    DecompositionStrategy,
+    enhanced_decompose
+)
+
+__all__ = [
+    "ROMAAugmentedTaskDecomposer",
+    "RecursiveTaskPlanner",
+    "RecursiveSubtask",
+    "RecursivePlan",
+    "TaskComplexity",
+    "DecompositionStrategy",
+    "enhanced_decompose"
+]

@@ -1,0 +1,41 @@
+FROM python:3.10-slim
+
+LABEL maintainer="Qweenone Team"
+LABEL description="Modern Qweenone Agentic System with Prefect, ROMA, LiteLLM, and more"
+
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    git \
+    curl \
+    wget \
+    build-essential \
+    libpq-dev \
+    tesseract-ocr \
+    libtesseract-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements_modern.txt .
+
+RUN pip install --upgrade pip setuptools wheel && \
+    pip install -r requirements_modern.txt
+
+RUN playwright install --with-deps chromium
+
+COPY src/ ./src/
+COPY tests/ ./tests/
+
+RUN mkdir -p /app/data /app/logs /app/screenshots
+
+EXPOSE 4200 9090 3000
+
+ENV PYTHONPATH=/app
+
+CMD ["python", "src/modern_main.py", "--status"]

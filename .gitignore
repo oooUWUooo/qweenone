@@ -1,47 +1,103 @@
-```
-# Compiled and build artifacts
-*.pyc
+# Python
 __pycache__/
-*.o
-*.obj
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Dependencies
-.venv/
+# Virtual environments
 venv/
-node_modules/
+ENV/
+env/
+.venv
 
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-
-# Environment
-.env
-.env.local
-.env.*
-
-# Editors
+# IDEs
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
 
-# Coverage
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+log/
+
+# Data
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Screenshots and recordings
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.mp4
+*.webm
+
+# Test coverage
 .coverage
-coverage/
+.pytest_cache/
 htmlcov/
+.tox/
+.nox/
 
-# Python
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
-.Python
-*.so
-*.egg-info/
-.egg/
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
-# Build directories
-build/
-dist/
-*.egg
-*.whl
-```
+# Docker
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.backup
+*.bak
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Redis
+dump.rdb
+
+# PostgreSQL
+*.sql
+
+# Prefect
+.prefect/
+
+# RabbitMQ
+rabbitmq_data/

@@ -1,0 +1,180 @@
+version: '3.8'
+
+services:
+  # Modern Qweenone Agentic System
+  qweenone-modern:
+    build:
+      context: .
+      dockerfile: Dockerfile.modern
+    container_name: qweenone-modern
+    environment:
+      - PYTHONUNBUFFERED=1
+      - LOG_LEVEL=INFO
+      
+      # Redis configuration
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      
+      # RabbitMQ configuration
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=qweenone
+      - RABBITMQ_PASS=qweenone_secret
+      
+      # PostgreSQL for Prefect
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=prefect
+      - POSTGRES_USER=prefect
+      - POSTGRES_PASSWORD=prefect_secret
+      
+      # API Keys (use .env file)
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      
+      # Feature flags
+      - USE_PREFECT=true
+      - USE_ROMA=true
+      - ENABLE_DESKTOP_AUTOMATION=false
+      - ENABLE_BROWSER_AUTOMATION=true
+      - ENABLE_LITELLM=true
+      - A2A_BACKEND=redis
+      
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./screenshots:/app/screenshots
+      
+    depends_on:
+      - redis
+      - rabbitmq
+      - postgres
+      
+    networks:
+      - qweenone-network
+    
+    command: python src/modern_main.py --status
+  
+  # Redis for caching and message queuing
+  redis:
+    image: redis:7-alpine
+    container_name: qweenone-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - qweenone-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+  
+  # RabbitMQ for enterprise messaging
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: qweenone-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=qweenone
+      - RABBITMQ_DEFAULT_PASS=qweenone_secret
+      - RABBITMQ_DEFAULT_VHOST=/
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - qweenone-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  # PostgreSQL for Prefect workflow storage
+  postgres:
+    image: postgres:15-alpine
+    container_name: qweenone-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=prefect
+      - POSTGRES_PASSWORD=prefect_secret
+      - POSTGRES_DB=prefect
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - qweenone-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prefect"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
+  # Prefect Server (optional - for UI and orchestration)
+  prefect-server:
+    image: prefecthq/prefect:2-python3.10
+    container_name: qweenone-prefect-server
+    ports:
+      - "4200:4200"
+    environment:
+      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://prefect:prefect_secret@postgres:5432/prefect
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PREFECT_UI_API_URL=http://localhost:4200/api
+    depends_on:
+      - postgres
+    networks:
+      - qweenone-network
+    command: prefect server start --host 0.0.0.0
+  
+  # Prometheus for metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: qweenone-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - qweenone-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+  
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: qweenone-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - qweenone-network
+
+volumes:
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  postgres_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  qweenone-network:
+    driver: bridge
